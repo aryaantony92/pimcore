@@ -18,6 +18,7 @@ namespace Pimcore\Tool;
 
 use Pimcore\Event\SystemEvents;
 use Pimcore\Model\Tool\TmpStore;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -25,7 +26,7 @@ class MaintenanceModeHelper implements MaintenanceModeHelperInterface
 {
     protected const ENTRY_ID = 'maintenace_mode';
 
-    public function __construct(protected RequestStack $requestStack)
+    public function __construct(protected RequestStack $requestStack, protected Connection $db)
     {
     }
 
@@ -53,7 +54,7 @@ class MaintenanceModeHelper implements MaintenanceModeHelperInterface
 
     public function isActive(string $matchSessionId = null): bool
     {
-        if ($maintenanceModeEntry = $this->getEntry()) {
+        if ($this->db->isConnected() && $maintenanceModeEntry = $this->getEntry()) {
             if ($matchSessionId && $matchSessionId !== $maintenanceModeEntry) {
                 return true;
             }
